@@ -1,0 +1,6 @@
+- name: Check if "docker-ce" package is installed
+  package:
+    name: "{{docker_package}}"
+    state: present
+  register: docker_ce_info
+  ignore_errors: true

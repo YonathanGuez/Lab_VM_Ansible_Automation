@@ -1,0 +1,6 @@
+---
+- name: Ping VMs
+  hosts: vms
+  tasks:
+    - name: Ping all hosts
+      ping:

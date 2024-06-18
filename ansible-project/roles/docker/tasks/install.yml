@@ -1,0 +1,73 @@
+---
+- name: Check if Docker service is installed
+  include_role:
+    name: docker
+    tasks_from: check_service.yml
+  register: docker_service_info
+  ignore_errors: true
+
+- name: Check if Docker CE is installed
+  include_role:
+    name: docker
+    tasks_from: check_ce.yml
+  register: docker_ce_info
+  ignore_errors: true
+    
+- name: Install required packages
+  yum:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+  when: docker_service_info.failed or docker_ce_info.failed
+
+- name: Add Docker repository
+  yum_repository:
+    name: docker
+    description: Docker Repository
+    baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    enabled: yes
+  when: docker_service_info.failed or docker_ce_info.failed
+
+- name: Install Docker CE
+  yum:
+    name: "{{ docker_package }}"
+    state: present
+  when: docker_ce_info.failed
+
+- name: Remove existing Docker daemon configuration (if present)
+  file:
+    path: /etc/docker/daemon.json
+    state: absent
+  ignore_errors: true
+  
+- name: Configure Docker storage driver
+  blockinfile:
+    path: /etc/docker/daemon.json
+    block: |
+      {
+        "storage-driver": "{{ docker_storage_driver }}"
+      }
+    create: yes
+    state: present
+  # when: docker_service_info.failed or docker_ce_info.failed
+- name: daemon.json remove block 
+  replace:
+    path: /etc/docker/daemon.json
+    regexp: "^#.*"  # Match lines starting with #
+    replace: ""
+
+- name:  daemon.json Replace all single quotes with double quotes
+  replace:
+    path: /etc/docker/daemon.json
+    regexp: "'"  # Match single quotes
+    replace: '"'  # Replace with double quotes
+
+- name: Start and enable Docker service
+  service:
+    name: "{{ docker_service }}"
+    state: started
+    enabled: yes

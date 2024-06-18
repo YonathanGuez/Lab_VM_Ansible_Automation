@@ -1,0 +1,4 @@
+- name: Check if Docker service is installed
+  command: docker --version
+  register: docker_service_info
+  ignore_errors: true

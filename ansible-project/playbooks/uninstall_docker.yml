@@ -1,0 +1,8 @@
+---
+- name: Uninstall Docker on CentOS 7 hosts
+  hosts: centos7
+  become: yes
+  roles:
+    - docker
+  tasks:
+    - include_tasks: ../roles/docker/tasks/uninstall.yml 

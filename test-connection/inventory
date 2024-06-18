@@ -1,0 +1,2 @@
+[vms]
+centos7 ansible_host=192.168.57.200 ansible_user=root

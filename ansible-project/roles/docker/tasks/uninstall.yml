@@ -1,0 +1,35 @@
+---
+- name: Stop and disable Docker service
+  service:
+    name: "{{ lookup('vars', 'docker_service') }}" 
+    state: stopped
+    enabled: no
+  ignore_errors: true
+
+- name: Remove Docker package
+  yum:
+    name: "{{ docker_package }}"  
+    state: absent
+
+- name: Remove Docker repository
+  yum_repository:
+    name: docker
+    state: absent
+
+- name: Remove Docker configuration file
+  file:
+    path: /etc/docker/daemon.json
+    state: absent
+
+- name: Check if Docker CE is installed
+  include_role:
+    name: docker
+    tasks_from: check_ce.yml
+  register: docker_ce_info
+  ignore_errors: true
+
+- name: Clean folder docker
+  file:
+    path: /var/lib/docker
+    state: absent
+  when: docker_ce_info.failed
