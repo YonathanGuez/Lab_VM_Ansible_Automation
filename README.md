@@ -72,7 +72,7 @@ Mount a local project directory into the Docker container, enabling access to pl
 Run with volume project:
 
 ```cmd
-docker run  -v C:/tmp/lab-centos7/ansible-project:/tmp -it testcentos
+docker run  -v C:/tmp/Lab_VM_Ansible_Automation/ansible-project:/tmp -it testcentos
 ```
 
 Run specific Ansible playbooks within the container to install and configure software on the VM, with options for detailed debugging output:
